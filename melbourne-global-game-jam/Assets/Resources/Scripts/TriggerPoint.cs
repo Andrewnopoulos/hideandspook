@@ -14,7 +14,7 @@ public class TriggerPoint : MonoBehaviour {
 
         boxRenderer = GetComponentInChildren<Renderer>();
 
-        //GetComponentInChildren<ParticleSystem>().Play();
+        GetComponentInChildren<ParticleSystem>().Play();
         GetComponentInChildren<Light>().enabled = true;
 	}
 	
@@ -25,7 +25,7 @@ public class TriggerPoint : MonoBehaviour {
         {
             //boxRenderer.material.color = new Color(0, 0, 1, 1); // blu
             //Spawn Particles from 'candle'
-            //GetComponentInChildren<ParticleSystem>().Stop();
+            GetComponentInChildren<ParticleSystem>().Stop();
             GetComponentInChildren<Light>().enabled = false;
         }
 	}

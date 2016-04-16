@@ -100,6 +100,7 @@ public class PlayerGhost : MonoBehaviour {
 
         m_ghostRenderer = GetComponent<Renderer>();
 
+        //
         ghostTrail = Instantiate(ghostTrailPrefab);
 
         m_collider = GetComponent<Collider>();
@@ -243,10 +244,10 @@ public class PlayerGhost : MonoBehaviour {
                 TriggerManager.s_manager.m_activePlayers++;
             }
             
-            //if (TriggerManager.s_manager.m_finished)
-            //{
-            //    Application.LoadLevel(Application.loadedLevel);
-            //}
+            if (TriggerManager.s_manager.m_finished)
+            {
+                Application.LoadLevel(Application.loadedLevel);
+            }
         }
 
 
@@ -257,36 +258,29 @@ public class PlayerGhost : MonoBehaviour {
             {
                 m_collider.enabled = true;
                 TriggerManager.s_manager.m_playing = true;
-            }
-            else
+            }else
             {
                 m_collider.enabled = false;
                 m_ghostRenderer.material.color = new Color(1, 1, 1, 0);
             }
-        }
-        else
+        } else
         {
             m_collider.enabled = true;
         }
 	}
 
-    public void Reset(bool fullReset = true)
+    public void Reset()
     {
         dead = false;
-        if (fullReset)
-        {
-            transform.position = new Vector3(0, 0, 0);
-
-            //Set parent to corresponding device
-            transform.SetParent(parentTransform);
-            m_transparencyValue = 0.0f;
-        }
+        transform.position = new Vector3(0, 0, 0);
+        transform.SetParent(parentTransform, false);
+        m_transparencyValue = 0.0f;
     }
 
     void Die()
     {
         dead = true;
-        m_ghostRenderer.material.color = new Color(1, 0, 0, 0.75f);
+        m_ghostRenderer.material.color = new Color(1, 0, 0, 1);
         GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHuman>().m_deadPlayers++;
         transform.SetParent(null, true);
     }

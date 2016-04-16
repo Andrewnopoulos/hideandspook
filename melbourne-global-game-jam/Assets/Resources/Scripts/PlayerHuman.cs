@@ -11,24 +11,20 @@ public class PlayerHuman : MonoBehaviour {
     public PlayerGhost ghost1;
     public PlayerGhost ghost2;
 
-    public float m_gameOverTime = 5.0f;
-    float m_currentGameOverTime = 0;
-
     public int m_deadPlayers = 0;
 
     public GameObject reticle;
 
-    Transform m_reticleTransform;
+ //   Transform m_reticleTransform;
 
     public LayerMask layerMask;
 
     public bool readyToReset = false;
-    bool m_restarting = false;
 
 	// Use this for initialization
 	void Start ()
     {
-        m_reticleTransform = reticle.GetComponent<Transform>();
+      //  m_reticleTransform = reticle.GetComponent<Transform>();
 	}
 	
     private void EndGame()
@@ -40,8 +36,8 @@ public class PlayerHuman : MonoBehaviour {
         readyToReset = true;
         TriggerManager.s_manager.m_activePlayers = 0;
 
-        ghost1.Reset(false);
-        ghost2.Reset(false);
+        ghost1.Reset();
+        ghost2.Reset();
     }
 
 	// Update is called once per frame
@@ -54,24 +50,27 @@ public class PlayerHuman : MonoBehaviour {
             m_titleTextMesh.text = "";
             if (readyToReset == false)
                 EndGame();
-        }        
+        }
+
+        if(m_deadPlayers == 2)
+        {
+            m_gameOverTextMesh.text = "Game Over";
+            m_finishedTextMesh.text = "You survived the ritual!";
+            m_titleTextMesh.text = "";
+            if (readyToReset == false)
+                EndGame();
+        }
 
         if (TriggerManager.s_manager.m_playing == false)
         {
             m_readyTextMesh.text = TriggerManager.s_manager.m_activePlayers + " ghost(s) ready\nPress red rutton to begin";
 
-            if (readyToReset && !m_restarting)
+            if (readyToReset)
             {
-                m_restarting = true;
-                TriggerManager.s_manager.m_playing = true;
-
-                //if (TriggerManager.s_manager.m_activePlayers == 2)
-                //{
-                    //Never triggered at all. :O
-                    //Application.LoadLevelAsync(Application.loadedLevel);
-                StartCoroutine(IGameOver(m_gameOverTime));
-                readyToReset = false;
-                //}
+                if (TriggerManager.s_manager.m_activePlayers == 2)
+                {
+                    Application.LoadLevel(Application.loadedLevel);
+                }
             }
         }
 
@@ -83,37 +82,15 @@ public class PlayerHuman : MonoBehaviour {
             m_readyTextMesh.text = "";
         }
 
-        Ray viewRay = new Ray(transform.position, transform.forward);
-        RaycastHit hit;
+        //Ray viewRay = new Ray(transform.position, transform.forward);
+        //RaycastHit hit;
 
-        if (Physics.Raycast(viewRay, out hit, Mathf.Infinity, layerMask))
-        {
-            m_reticleTransform.position = hit.point;
-            m_reticleTransform.up = hit.normal;
-        }
-
-        if (m_deadPlayers == 2)
-        {
-            m_gameOverTextMesh.text = "Game Over";
-            m_finishedTextMesh.text = "You survived the ritual!";
-            m_titleTextMesh.text = "";
-            if (readyToReset == false)
-                EndGame();
-        }
+        //if (Physics.Raycast(viewRay, out hit, Mathf.Infinity, layerMask))
+        //{
+        //    m_reticleTransform.position = hit.point;
+        //    m_reticleTransform.up = hit.normal;
+        //}
 	}
-
-    IEnumerator IGameOver(float _secondsToWait)
-    {
-        while(m_currentGameOverTime < _secondsToWait)
-        {
-            m_currentGameOverTime += Time.deltaTime;
-            
-            yield return new WaitForEndOfFrame();
-        }
-
-        Application.LoadLevel(Application.loadedLevel);
-        yield return null;
-    }
 
     public void DamageEnemy(PlayerGhost _target)
     {
