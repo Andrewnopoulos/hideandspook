@@ -122,6 +122,13 @@ public class PlayerGhost : MonoBehaviour {
     {
         Ray playerVision = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
 
+        float inFrontOfPlayer = Vector3.Dot(playerVision.direction, transform.position - playerVision.origin);
+
+        if (inFrontOfPlayer < 0)
+        {
+            return -1;
+        }
+
         return Vector3.Cross(playerVision.direction, transform.position - playerVision.origin).magnitude;
     }
 
@@ -137,6 +144,13 @@ public class PlayerGhost : MonoBehaviour {
         }
 
         float viewCenterDistance = GetDistanceFromViewCenter();
+
+        if (viewCenterDistance == -1) // if it's -1 then it's behind
+        {
+            m_totalVisibility = 0; // so you can't see it at all, noob
+            return;
+        }
+
         m_visionVisibility = visionScaler / (viewCenterDistance == 0 ? 1 : viewCenterDistance);
         if (m_controller.GetHairTrigger()) // if detecting
         {

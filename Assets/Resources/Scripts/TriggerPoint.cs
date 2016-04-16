@@ -21,7 +21,7 @@ public class TriggerPoint : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if (m_triggered)
+        if (m_triggered || TriggerManager.s_manager.m_finished)
         {
             //boxRenderer.material.color = new Color(0, 0, 1, 1); // blu
             //Spawn Particles from 'candle'
