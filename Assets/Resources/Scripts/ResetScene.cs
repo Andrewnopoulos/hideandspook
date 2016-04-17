@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+
 using System.Collections;
 
 public class ResetScene : MonoBehaviour {
@@ -7,7 +9,8 @@ public class ResetScene : MonoBehaviour {
 	void Update () {
         if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.R))
         {
-            Application.LoadLevel(Application.loadedLevel);
+            //Application.LoadLevel(Application.loadedLevel);
+            SceneManager.LoadScene(0);        
         }
 	}
 }
