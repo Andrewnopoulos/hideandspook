@@ -239,7 +239,7 @@ public class PlayerGhost : MonoBehaviour {
 
 
 		StateManager sm = StateManager.instance;
-		if (!dead && sm.state == State.Playing)
+		if (!dead && sm.state == State.Playing && m_readyToPlay)
         {
             UpdateVisibilityValues();
             UpdateGhostTransparency();
