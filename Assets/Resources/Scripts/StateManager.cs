@@ -17,7 +17,7 @@ public class StateManager : MonoBehaviour
 	private MeshRenderer mRenderer;
 	private MeshFilter mFilter;
 
-	private float mTransparency;
+	private float mAlpha;
 	private float mTarget;
 
 	private Action mFadeCallback;
@@ -28,11 +28,16 @@ public class StateManager : MonoBehaviour
 		set { mState = value; }
 	}
 
+	public float alpha
+	{
+		get { return mAlpha; }
+	}
+
 	public bool Idle
 	{
 		get
 		{
-			return Mathf.Abs(mTarget - mTransparency) < Mathf.Epsilon;
+			return Mathf.Abs(mTarget - mAlpha) < Mathf.Epsilon;
 		}
 	}
 
@@ -65,27 +70,27 @@ public class StateManager : MonoBehaviour
 
 	private void Update()
 	{
-		if (Mathf.Abs(mTarget - mTransparency) > Mathf.Epsilon)
+		if (Mathf.Abs(mTarget - mAlpha) > Mathf.Epsilon)
 		{
 			float speed = Time.deltaTime / 0.5f;
-			if (mTarget > mTransparency)
+			if (mTarget > mAlpha)
 			{
-				mTransparency += speed;
-				if (mTransparency > mTarget)
+				mAlpha += speed;
+				if (mAlpha > mTarget)
 				{
-					mTransparency = mTarget;
+					mAlpha = mTarget;
 				}
 			}
 			else
 			{
-				mTransparency -= speed;
-				if (mTransparency < mTarget)
+				mAlpha -= speed;
+				if (mAlpha < mTarget)
 				{
-					mTransparency = mTarget;
+					mAlpha = mTarget;
 				}
 			}
 
-			mMaterial.color = new Color(0, 0, 0, mTransparency);
+			mMaterial.color = new Color(0, 0, 0, mAlpha);
 		}
 		else if (mFadeCallback != null)
 		{
@@ -110,9 +115,9 @@ public class StateManager : MonoBehaviour
 
 	public void SetTransparency(float transparency)
 	{
-		mTransparency = transparency;
-		mTarget = mTransparency;
-		mMaterial.color = new Color(0, 0, mTransparency);
+		mAlpha = transparency;
+		mTarget = mAlpha;
+		mMaterial.color = new Color(0, 0, mAlpha);
 	}
 
 	private static StateManager _instance;
