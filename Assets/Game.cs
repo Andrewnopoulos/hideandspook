@@ -161,16 +161,16 @@ public class Game : MonoBehaviour {
 
 		List<GameObject> candleTransforms = new List<GameObject>(GameObject.FindGameObjectsWithTag("TriggerObject"));
 
-		int candleCount = 0;
 
-		while (candleCount < maxCandles && candleTransforms.Count > 0)
+
+		while (TriggerManager.s_manager.m_maxCandles < maxCandles && candleTransforms.Count > 0)
 		{
 			int index = Random.Range(0, candleTransforms.Count);
 			GameObject currentCandle = GameObject.Instantiate(triggerObject);
             currentCandle.transform.SetParent(_triggerRoot.transform, false);
 			currentCandle.transform.position = candleTransforms[index].transform.position;
 			candleTransforms.RemoveAt(index);
-			++candleCount;
+			++TriggerManager.s_manager.m_maxCandles;
 		}
 	}
 
@@ -362,8 +362,7 @@ public class Game : MonoBehaviour {
                 break;
 
             case State.Playing:
-                int lost = maxCandles - TriggerManager.s_manager.m_triggerList.Count;
-                playerLight.intensity = 1f - (lost * 0.15f);
+                playerLight.intensity = 1f - (TriggerManager.s_manager.m_activeCount * 0.15f);
                 break;
         }
     }

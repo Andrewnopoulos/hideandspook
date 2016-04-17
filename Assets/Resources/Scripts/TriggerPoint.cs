@@ -24,13 +24,18 @@ public class TriggerPoint : MonoBehaviour {
             GetComponentInChildren<ParticleSystem>().Stop();
             GetComponentInChildren<Light>().enabled = false;
         }
+
+		if (StateManager.instance.state == State.PostGame)
+		{
+			GetComponentInChildren<ParticleSystem>().Stop();
+		}
 	}
 
     public void ActivateTrigger()
     {
         m_triggered = true;
         TriggerManager.s_manager.m_activeCount++;
-        if (TriggerManager.s_manager.m_activeCount == 5)
+        if (TriggerManager.s_manager.m_activeCount == TriggerManager.s_manager.m_maxCandles)
         {
             TriggerManager.s_manager.m_finished = true;
         }

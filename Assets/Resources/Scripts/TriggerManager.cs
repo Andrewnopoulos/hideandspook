@@ -13,6 +13,8 @@ public class TriggerManager : MonoBehaviour
 
 	public uint m_activePlayers = 0;
 
+	public int m_maxCandles = 0;
+
 	public bool m_playing = false;
 	private static TriggerManager sm_manager;
 	public static TriggerManager s_manager
@@ -40,6 +42,7 @@ public class TriggerManager : MonoBehaviour
 		m_finished = false;
 		m_playing = false;
 		m_activePlayers = 0;
+		m_maxCandles = 0;
 	}
 
 	public static void EndGame()
