@@ -11,9 +11,9 @@ public enum State
 
 public class StateManager : MonoBehaviour
 {
-	private const float kRed = 1;
-	private const float kGreen = 1;
-	private const float kBlue = 1;
+	private const float kRed = 0.5f;
+	private const float kGreen = 0.5f;
+	private const float kBlue = 0.5f;
 
 	private State mState;
 	private Mesh mQuad;
