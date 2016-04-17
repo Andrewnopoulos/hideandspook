@@ -74,7 +74,7 @@ public class PlayerGhost : MonoBehaviour {
 
     private bool dead = false;
 
-    Renderer m_ghostRenderer;
+    public Renderer ghostRenderer;
 
     Transform parentTransform;
 
@@ -98,9 +98,6 @@ public class PlayerGhost : MonoBehaviour {
 	void Start ()
     {
         SetTriggerPoint();
-
-        m_ghostRenderer = GetComponent<Renderer>();
-		
         ghostTrail = Instantiate(ghostTrailPrefab);
 
         m_collider = GetComponent<Collider>();
@@ -175,7 +172,7 @@ public class PlayerGhost : MonoBehaviour {
             m_transparencyValue = minimumTransparency;
         }
 
-        m_ghostRenderer.material.color = new Color(1, 1, 1, m_transparencyValue);
+        ghostRenderer.material.color = new Color(1, 1, 1, m_transparencyValue);
 
         if (m_transparencyValue > 0.95f)
         {
@@ -274,7 +271,7 @@ public class PlayerGhost : MonoBehaviour {
             }else
             {
                 m_collider.enabled = false;
-                m_ghostRenderer.material.color = new Color(1, 1, 1, 0);
+                ghostRenderer.material.color = new Color(1, 1, 1, 0);
             }
         } else
         {
@@ -292,7 +289,7 @@ public class PlayerGhost : MonoBehaviour {
     void Die()
     {
         dead = true;
-        m_ghostRenderer.material.color = new Color(1, 0, 0, 1);
+        ghostRenderer.material.color = new Color(1, 0, 0, 1);
         GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHuman>().m_deadPlayers++;
         transform.SetParent(null, true);
     }
