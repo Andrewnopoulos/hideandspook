@@ -14,6 +14,7 @@ public class Game : MonoBehaviour {
 
     string _path = "Prefabs/";
 
+    public Light playerLight;
     public GameObject[] _worldObjects;
     public GameObject[] _firstPassObjects;
 
@@ -64,9 +65,11 @@ public class Game : MonoBehaviour {
         GameObject ceiling = GameObject.Instantiate(Resources.Load<GameObject>(_path + "Ceiling"));
         ceiling.transform.SetParent(_envRoot.transform, false);
 
-        int Width = Mathf.Max(Mathf.CeilToInt(corners[3].x * 2), minWidth) ;
-        int Length = Mathf.Max(Mathf.CeilToInt(corners[2].z * 2), minLength) ;
+        int Width = Mathf.Max(Mathf.CeilToInt(corners[3].x * 2), minWidth);
+        int Length = Mathf.Max(Mathf.CeilToInt(corners[2].z * 2), minLength);
         int Height = 3;
+
+        playerLight.range = Width + Length + Height;
 
         MeshRenderer renderer = wallSouth.GetComponent<MeshRenderer>();
 
@@ -351,8 +354,19 @@ public class Game : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-        
-	}
+        switch (StateManager.instance.state)
+        {
+            case State.PreGame:
+            case State.PostGame:
+                playerLight.intensity = 1f;
+                break;
+
+            case State.Playing:
+                int lost = maxCandles - TriggerManager.s_manager.m_triggerList.Count;
+                playerLight.intensity = 1f - (lost * 0.15f);
+                break;
+        }
+    }
 }
 
 public class WeightedPool <T> where T : class
