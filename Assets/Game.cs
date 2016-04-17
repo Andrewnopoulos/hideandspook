@@ -15,6 +15,10 @@ public class Game : MonoBehaviour {
     string _path = "Prefabs/";
 
     public Light playerLight;
+    public GameObject gameTextInfo;
+    public GameObject gameTextGhostsWins;
+    public GameObject gameTextPlayerWins;
+
     public GameObject[] _worldObjects;
     public GameObject[] _firstPassObjects;
 
@@ -354,6 +358,7 @@ public class Game : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        // Toggle player light intensity
         switch (StateManager.instance.state)
         {
             case State.PreGame:
@@ -363,6 +368,24 @@ public class Game : MonoBehaviour {
 
             case State.Playing:
                 playerLight.intensity = 1f - (TriggerManager.s_manager.m_activeCount * 0.15f);
+                break;
+        }
+
+        // Toggle viewer UI states
+        switch (StateManager.instance.state)
+        {
+            case State.PreGame:
+            case State.Playing:
+                gameTextInfo.SetActive(true);
+                gameTextGhostsWins.SetActive(false);
+                gameTextPlayerWins.SetActive(false);
+                break;
+
+            case State.PostGame:
+                gameTextInfo.SetActive(false);
+                bool ghostsWin = TriggerManager.s_manager.m_activeCount >= TriggerManager.s_manager.m_maxCandles;
+                gameTextGhostsWins.SetActive(ghostsWin);
+                gameTextPlayerWins.SetActive(!ghostsWin);
                 break;
         }
     }

@@ -47,6 +47,11 @@ public class TriggerManager : MonoBehaviour
 
 	public static void EndGame()
 	{
+        GameObject endObj = Instantiate(Resources.Load<GameObject>("Prefabs/EndGame"));
+        Vector3 euler = Camera.main.transform.rotation.eulerAngles;
+        euler.x = 0;
+        euler.z = 0;
+        endObj.transform.rotation = Quaternion.Euler(euler);
 		StateManager.instance.FadeIn(State.PostGame, null);
 	}
 
