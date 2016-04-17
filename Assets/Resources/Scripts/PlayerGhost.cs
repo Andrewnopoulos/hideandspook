@@ -77,6 +77,7 @@ public class PlayerGhost : MonoBehaviour {
     public Renderer ghostRenderer;
 
     Transform parentTransform;
+	Color baseColor;
 
     //TrailRenderer m_ghostTrail;
 
@@ -92,6 +93,7 @@ public class PlayerGhost : MonoBehaviour {
 	void Awake()
 	{
 		m_trackedObject = GetComponentInParent<SteamVR_TrackedObject>();
+		baseColor = ghostRenderer.sharedMaterial.GetColor("_TintColor");
 	}
 
 	// Use this for initialization
@@ -126,6 +128,14 @@ public class PlayerGhost : MonoBehaviour {
 
     void UpdateVisibilityValues()
     {
+		StateManager sm = StateManager.instance;
+		if (sm.state != State.Playing)
+		{
+			m_totalVisibility = 0;
+			m_transparencyValue = 0;
+			return;
+		}
+
 		var device = SteamVR_Controller.Input((int)m_trackedObject.index);
 		m_speedVisibility = speedScaler * device.velocity.magnitude;
 
@@ -172,7 +182,7 @@ public class PlayerGhost : MonoBehaviour {
             m_transparencyValue = minimumTransparency;
         }
 
-        ghostRenderer.material.color = new Color(1, 1, 1, m_transparencyValue);
+		ghostRenderer.material.SetColor("_TintColor", new Color(baseColor.r, baseColor.g, baseColor.b, m_transparencyValue));
 
         if (m_transparencyValue > 0.95f)
         {
@@ -212,15 +222,15 @@ public class PlayerGhost : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
-		if (dead)
-        {
-            if (Input.GetKey(KeyCode.Space))
-            {
-                Reset();
-            }
+		//if (dead)
+  //      {
+  //          if (Input.GetKey(KeyCode.Space))
+  //          {
+  //              Reset();
+  //          }
 
-            return;
-        }
+  //          return;
+  //      }
 
 		var device = SteamVR_Controller.Input((int)m_trackedObject.index);
 		bool appMenuDown = device.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu);
@@ -228,7 +238,8 @@ public class PlayerGhost : MonoBehaviour {
 		bool hairTriggerDown = device.GetHairTriggerDown();
 
 
-		if (m_readyToPlay)
+		StateManager sm = StateManager.instance;
+		if (!dead && sm.state == State.Playing)
         {
             UpdateVisibilityValues();
             UpdateGhostTransparency();
@@ -246,14 +257,15 @@ public class PlayerGhost : MonoBehaviour {
 
         if (appMenuDown)
         {
-            if (!m_readyToPlay)
+            if (!m_readyToPlay && sm.state == State.PreGame && sm.Idle)
             {
                 m_readyToPlay = true;
                 device.TriggerHapticPulse((ushort)3000);
+				m_collider.enabled = true;
                 TriggerManager.s_manager.m_activePlayers++;
             }
-            
-            if (TriggerManager.s_manager.m_finished)
+			
+            if (sm.state == State.PostGame && sm.Idle)
             {
 				TriggerManager.ReloadGame();
 				return;
@@ -262,21 +274,27 @@ public class PlayerGhost : MonoBehaviour {
 
 
         // change the 2 if we wanted arbitrary number of players
-        if (TriggerManager.s_manager.m_playing == false)
-        {
-            if (TriggerManager.s_manager.m_activePlayers == 2)
-            {
-                m_collider.enabled = true;
-                TriggerManager.s_manager.m_playing = true;
-            }else
-            {
-                m_collider.enabled = false;
-                ghostRenderer.material.color = new Color(1, 1, 1, 0);
-            }
-        } else
-        {
-            m_collider.enabled = true;
-        }
+		if (sm.state == State.PreGame)
+		{
+			if (TriggerManager.s_manager.m_playing == false)
+			{
+				if (TriggerManager.s_manager.m_activePlayers == 2)
+				{
+					m_collider.enabled = true;
+					TriggerManager.s_manager.m_playing = true;
+					StateManager.instance.state = State.Playing;
+				}
+				else
+				{
+					m_collider.enabled = false;
+					ghostRenderer.material.SetColor("_TintColor", new Color(baseColor.r, baseColor.g, baseColor.b, 0));
+				}
+			}
+			else
+			{
+				m_collider.enabled = true;
+			}
+		}
 	}
 
     public void Reset()
@@ -289,9 +307,10 @@ public class PlayerGhost : MonoBehaviour {
     void Die()
     {
         dead = true;
-        ghostRenderer.material.color = new Color(1, 0, 0, 1);
-        GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHuman>().m_deadPlayers++;
+		ghostRenderer.material.SetColor("_TintColor", new Color(81f/255f, 0f, 0f, 1f));
+		GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerHuman>().m_deadPlayers++;
         transform.SetParent(null, true);
+		m_collider.enabled = false;
     }
 
     public void SetTriggerPoint()

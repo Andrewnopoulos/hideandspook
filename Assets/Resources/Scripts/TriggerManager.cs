@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -41,9 +42,15 @@ public class TriggerManager : MonoBehaviour
 		m_activePlayers = 0;
 	}
 
+	public static void EndGame()
+	{
+		StateManager.instance.FadeIn(State.PostGame, null);
+	}
+
 	public static void ReloadGame()
 	{
 		s_manager.Reset();
-		Application.LoadLevel(Application.loadedLevel);
+		SceneManager.LoadScene(0);
+		StateManager.instance.FadeOut(State.PreGame, null);
 	}
 }
