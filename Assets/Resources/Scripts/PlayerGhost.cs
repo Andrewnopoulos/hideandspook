@@ -15,9 +15,10 @@ public class PlayerGhost : MonoBehaviour {
    // static uint playerIndex = 3;
 
     //public PLAYER_TYPE m_playerType = PLAYER_TYPE.NONE;
-	
+
+    public uint m_index;
     public TriggerPoint m_triggerPoint = null;
-	public SteamVR_TrackedObject m_trackedObject = null;
+    public SteamVR_Controller.Device m_controller = null;
 
     public bool m_withinInteractRange = false;
 
@@ -71,8 +72,8 @@ public class PlayerGhost : MonoBehaviour {
 
     // Will go between 0 and 1
     float m_transparencyValue;
-
-    private bool dead = false;
+    [HideInInspector]
+    public bool dead = false;
 
     public Renderer ghostRenderer;
 
@@ -89,15 +90,16 @@ public class PlayerGhost : MonoBehaviour {
 
     public PlayerHuman PlayerHead;
 
-	void Awake()
-	{
-		m_trackedObject = GetComponentInParent<SteamVR_TrackedObject>();
-	}
-
 	// Use this for initialization
 	void Start ()
     {
+        InitControllerIndex();
+
+        m_controller = new SteamVR_Controller.Device(m_index);
         SetTriggerPoint();
+        
+
+        //
         ghostTrail = Instantiate(ghostTrailPrefab);
 
         m_collider = GetComponent<Collider>();
@@ -105,10 +107,15 @@ public class PlayerGhost : MonoBehaviour {
         m_collider.enabled = false;
 	}
 
-    //void Awake()
-    //{
-    //    parentTransform = GetComponentsInParent<Transform>()[1];
-    //}
+    void InitControllerIndex()
+    {
+        m_index = (uint)GetComponentInParent<SteamVR_TrackedObject>().index;
+    }
+
+    void Awake()
+    {
+        parentTransform = GetComponentsInParent<Transform>()[1];
+    }
 
     float GetDistanceFromViewCenter()
     {
@@ -126,8 +133,7 @@ public class PlayerGhost : MonoBehaviour {
 
     void UpdateVisibilityValues()
     {
-		var device = SteamVR_Controller.Input((int)m_trackedObject.index);
-		m_speedVisibility = speedScaler * device.velocity.magnitude;
+        m_speedVisibility = speedScaler * m_controller.velocity.magnitude;
 
         //Debug.Log("Speed vis value : " + m_speedVisibility);
 
@@ -145,7 +151,7 @@ public class PlayerGhost : MonoBehaviour {
         }
 
         m_visionVisibility = visionScaler / (viewCenterDistance == 0 ? 1 : viewCenterDistance);
-        if (device.GetHairTrigger()) // if detecting
+        if (m_controller.GetHairTrigger()) // if detecting
         {
             if (distanceToTrigger != 0)
                 m_detectingVisibility = detectionScaler / distanceToTrigger;
@@ -184,35 +190,34 @@ public class PlayerGhost : MonoBehaviour {
     {
         m_vibeTimer += Time.deltaTime;
 
-		//Set to 2D.
-		Vector3 triggerPointLocation = m_triggerPoint.transform.position;
-        Vector3 transformLocation = transform.position;
+        //Set to 2D.
+        Vector3 triggerPointLocation = new Vector3(m_triggerPoint.transform.position.x, 0f, m_triggerPoint.transform.position.z);
+        Vector3 transformLocation = new Vector3(transform.position.x, 0f, transform.position.z);
+        //distanceToTrigger = (m_triggerPoint.transform.position - transform.position).magnitude;
         distanceToTrigger = (triggerPointLocation - transformLocation).magnitude;
 
         float vibeDelay = vibeDelayModifier * distanceToTrigger;
         float vibeLength = vibeLengthModifier / (distanceToTrigger == 0 ? 1 : distanceToTrigger);
 
-		var device = SteamVR_Controller.Input((int)m_trackedObject.index);
-
-		if (m_vibeTimer > vibeDelay)
+        if (m_vibeTimer > vibeDelay)
         {
             m_vibeTimer = 0;
             ushort clampedLength = (ushort)Mathf.Clamp(vibeLength, 500, 2000);
 
             if (distanceToTrigger < distanceThreshold)
             {
-                device.TriggerHapticPulse((ushort)3200);
+                m_controller.TriggerHapticPulse((ushort)3200);
             } else
             {
-				device.TriggerHapticPulse(clampedLength);
+                m_controller.TriggerHapticPulse(clampedLength);
             }
         }
     }
 
 	// Update is called once per frame
 	void Update ()
-	{
-		if (dead)
+    {
+        if (dead)
         {
             if (Input.GetKey(KeyCode.Space))
             {
@@ -222,20 +227,19 @@ public class PlayerGhost : MonoBehaviour {
             return;
         }
 
-		var device = SteamVR_Controller.Input((int)m_trackedObject.index);
-		bool appMenuDown = device.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu);
-		bool touchPadDown = device.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad);
-		bool hairTriggerDown = device.GetHairTriggerDown();
+        if (m_controller.index != m_index)
+        {
+            InitControllerIndex();
+        }
 
-
-		if (m_readyToPlay)
+        if (m_readyToPlay)
         {
             UpdateVisibilityValues();
             UpdateGhostTransparency();
 
             Vibrate();
 
-            if (touchPadDown || hairTriggerDown)
+            if (m_controller.GetPressDown(SteamVR_Controller.ButtonMask.Touchpad) || m_controller.GetHairTriggerDown())
             {
                 if (distanceToTrigger < distanceThreshold)
                 {
@@ -244,19 +248,18 @@ public class PlayerGhost : MonoBehaviour {
             }
         }
 
-        if (appMenuDown)
+        if (m_controller.GetPressDown(SteamVR_Controller.ButtonMask.ApplicationMenu))
         {
             if (!m_readyToPlay)
             {
                 m_readyToPlay = true;
-                device.TriggerHapticPulse((ushort)3000);
+                m_controller.TriggerHapticPulse((ushort)3000);
                 TriggerManager.s_manager.m_activePlayers++;
             }
             
             if (TriggerManager.s_manager.m_finished)
             {
-				TriggerManager.ReloadGame();
-				return;
+                Application.LoadLevel(Application.loadedLevel);
             }
         }
 
@@ -282,7 +285,8 @@ public class PlayerGhost : MonoBehaviour {
     public void Reset()
     {
         dead = false;
-		transform.parent = null;
+        transform.position = new Vector3(0, 0, 0);
+        transform.SetParent(parentTransform, false);
         m_transparencyValue = 0.0f;
     }
 
