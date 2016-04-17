@@ -43,13 +43,16 @@ public class PlayerHuman : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-	    if(TriggerManager.s_manager.m_finished)
-        {
-            m_gameOverTextMesh.text = "Game Over";
-            m_finishedTextMesh.text = "The ghosts consumed your soul! :C";
-            m_titleTextMesh.text = "";
-            if (readyToReset == false)
-                EndGame();
+		if (TriggerManager.s_manager.m_finished)
+		{
+			m_gameOverTextMesh.text = "Game Over";
+			m_finishedTextMesh.text = "The ghosts consumed your soul! :C";
+			m_titleTextMesh.text = "";
+			if (StateManager.instance.state == State.Playing)
+			{
+				//EndGame();
+				TriggerManager.EndGame();
+			}
         }
 
         if(m_deadPlayers == 2)
@@ -57,21 +60,24 @@ public class PlayerHuman : MonoBehaviour {
             m_gameOverTextMesh.text = "Game Over";
             m_finishedTextMesh.text = "You survived the ritual!";
             m_titleTextMesh.text = "";
-            if (readyToReset == false)
-                EndGame();
+            if (StateManager.instance.state == State.Playing)
+			{
+				//EndGame();
+				TriggerManager.EndGame();
+			}
         }
 
         if (TriggerManager.s_manager.m_playing == false)
         {
             m_readyTextMesh.text = TriggerManager.s_manager.m_activePlayers + " ghost(s) ready\nPress red rutton to begin";
 
-            if (readyToReset)
-            {
-                if (TriggerManager.s_manager.m_activePlayers == 2)
-                {
-                    Application.LoadLevel(Application.loadedLevel);
-                }
-            }
+            //if (readyToReset)
+            //{
+            //    if (TriggerManager.s_manager.m_activePlayers == 2)
+            //    {
+            //        Application.LoadLevel(Application.loadedLevel);
+            //    }
+            //}
         }
 
         if (TriggerManager.s_manager.m_playing)
