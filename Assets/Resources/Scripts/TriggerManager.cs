@@ -52,6 +52,10 @@ public class TriggerManager : MonoBehaviour
         euler.x = 0;
         euler.z = 0;
         endObj.transform.rotation = Quaternion.Euler(euler);
+		bool ghostsWin = s_manager.m_activeCount >= s_manager.m_maxCandles;
+		endObj.transform.Find("Canvas/AlchWins").gameObject.SetActive(!ghostsWin);
+		endObj.transform.Find("Canvas/GhostsWin").gameObject.SetActive(ghostsWin);
+
 		StateManager.instance.FadeIn(State.PostGame, null);
 	}
 

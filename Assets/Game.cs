@@ -382,6 +382,9 @@ public class Game : MonoBehaviour {
                 break;
 
             case State.PostGame:
+				_envRoot.SetActive(false);
+				_triggerRoot.SetActive(false);
+
                 gameTextInfo.SetActive(false);
                 bool ghostsWin = TriggerManager.s_manager.m_activeCount >= TriggerManager.s_manager.m_maxCandles;
                 gameTextGhostsWins.SetActive(ghostsWin);

@@ -11,6 +11,10 @@ public enum State
 
 public class StateManager : MonoBehaviour
 {
+	private const float kRed = 1;
+	private const float kGreen = 1;
+	private const float kBlue = 1;
+
 	private State mState;
 	private Mesh mQuad;
 	private Material mMaterial;
@@ -90,7 +94,7 @@ public class StateManager : MonoBehaviour
 				}
 			}
 
-			mMaterial.color = new Color(0, 0, 0, mAlpha);
+			mMaterial.color = new Color(kRed, kGreen, kBlue, mAlpha);
 		}
 		else if (mFadeCallback != null)
 		{
@@ -117,7 +121,7 @@ public class StateManager : MonoBehaviour
 	{
 		mAlpha = transparency;
 		mTarget = mAlpha;
-		mMaterial.color = new Color(0, 0, mAlpha);
+		mMaterial.color = new Color(kRed, kGreen, kBlue, mAlpha);
 	}
 
 	private static StateManager _instance;

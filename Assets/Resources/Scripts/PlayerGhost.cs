@@ -296,7 +296,6 @@ public class PlayerGhost : MonoBehaviour {
 			}
 		} else if (sm.state == State.PostGame)
 		{
-			Debug.Log("Alpha " + sm.alpha);
 			ghostRenderer.material.SetColor("_TintColor", new Color(81f / 255f, 0f, 0f, 1-sm.alpha));
 		}
 	}
