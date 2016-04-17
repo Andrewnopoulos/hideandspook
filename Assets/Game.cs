@@ -111,10 +111,10 @@ public class Game : MonoBehaviour {
             List<GameObject> firstList = new List<GameObject>(_firstPassObjects);
             WeightedPool<GameObject> firstPool = new WeightedPool<GameObject>(firstList, true);
 
-            PopulateWall(chunk, firstList, firstPool, 0, 0, 0, 0, 0, 1, 0, 1, 0, Length, Height, Quaternion.Euler(0, -90, 0));
-            PopulateWall(chunk, firstList, firstPool, 0, 0, Length - 1, 1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 0, 0));
-            PopulateWall(chunk, firstList, firstPool, Width - 1, 0, Length - 1, 0, 0, -1, 0, 1, 0, Length, Height, Quaternion.Euler(0, 90, 0));
-            PopulateWall(chunk, firstList, firstPool, Width - 1, 0, 0, -1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 180, 0));
+            PopulateWall(chunk, firstList, firstPool, 0, 0, Length - 1, 1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 0, 0), 0.6f);
+            PopulateWall(chunk, firstList, firstPool, 0, 0, 0, 0, 0, 1, 0, 1, 0, Length, Height, Quaternion.Euler(0, -90, 0), 0.6f);
+            PopulateWall(chunk, firstList, firstPool, Width - 1, 0, 0, -1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 180, 0), 0.6f);
+            PopulateWall(chunk, firstList, firstPool, Width - 1, 0, Length - 1, 0, 0, -1, 0, 1, 0, Length, Height, Quaternion.Euler(0, 90, 0), 0.6f);
         }
 
         List<GameObject> worldList = new List<GameObject>(_worldObjects);
@@ -278,7 +278,7 @@ public class Game : MonoBehaviour {
         return valid;
     }
 
-    void PopulateWall(Chunk _chunk, List<GameObject> objList, WeightedPool<GameObject> pool, int x, int y, int z, int wdx, int wdy, int wdz, int ldx, int ldy, int ldz, int width, int length, Quaternion rotation)
+    void PopulateWall(Chunk _chunk, List<GameObject> objList, WeightedPool<GameObject> pool, int x, int y, int z, int wdx, int wdy, int wdz, int ldx, int ldy, int ldz, int width, int length, Quaternion rotation, float forceRand = 0.0f)
     {
         int cx, cy, cz;
 
@@ -302,7 +302,10 @@ public class Game : MonoBehaviour {
                 }
 
                 float rval = Random.Range(0, 1.0f);
-
+                if (forceRand > Mathf.Epsilon)
+                {
+                    rand = forceRand;
+                }
                 if (rval > rand)
                 {
                     continue;
@@ -402,7 +405,7 @@ public class WeightedPool <T> where T : class
             selected = validWeights[0];
             if (removeOnPick)
             {
-                weights.RemoveAt(0);
+                weights.Remove(selected);
             }
             return selected.val;
 		}
