@@ -6,7 +6,7 @@ public class TriggerPoint : MonoBehaviour {
     public bool m_triggered = false;
 
 	// Use this for initialization
-	void Start ()
+	void Awake ()
     {
         TriggerManager.s_manager.m_triggerList.Add(this);
 

@@ -4,29 +4,46 @@ using System.Collections.Generic;
 
 public class TriggerManager : MonoBehaviour
 {
-    [Range(0.0f, 0.5f)]
-    public float m_delayModifier = 0.25f;
-    [Range(500, 3000)]
-    public ushort m_lengthModifier = 1000;
-    public float m_heightMin = 1.0f;
-    public float m_heightMax = 1.5f;
+	public int m_activeCount = 0;
 
-    public int m_activeCount = 0;
+	public List<TriggerPoint> m_triggerList = new List<TriggerPoint>();
 
-    public int m_currentIndex = 0;
+	public bool m_finished = false;
 
-    public List<TriggerPoint> m_triggerList = new List<TriggerPoint>();
-    public static TriggerManager s_manager = null;
+	public uint m_activePlayers = 0;
 
-    public bool m_finished = false;
+	public bool m_playing = false;
+	private static TriggerManager sm_manager;
+	public static TriggerManager s_manager
+	{
+		get
+		{
+			if (sm_manager == null)
+			{
+				sm_manager = Instantiate(Resources.Load<GameObject>("Prefabs/TriggerPoints")).GetComponent<TriggerManager>();
+			}
+			return sm_manager;
+		}
+	}
 
-    public uint m_activePlayers = 0;
-
-    public bool m_playing = false;
-
-    void Awake()
+	void Awake()
     {
-        s_manager = this;
+        sm_manager = this;
+		DontDestroyOnLoad(this);
     }
 
+	public void Reset()
+	{
+		m_triggerList = new List<TriggerPoint>();
+		m_activeCount = 0;
+		m_finished = false;
+		m_playing = false;
+		m_activePlayers = 0;
+	}
+
+	public static void ReloadGame()
+	{
+		s_manager.Reset();
+		Application.LoadLevel(Application.loadedLevel);
+	}
 }

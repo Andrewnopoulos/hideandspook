@@ -21,7 +21,7 @@ public class Game : MonoBehaviour {
 	public int maxCandles = 6;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
         InitGameArea();
     }
 
