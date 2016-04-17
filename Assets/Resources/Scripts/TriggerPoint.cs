@@ -5,14 +5,10 @@ public class TriggerPoint : MonoBehaviour {
 
     public bool m_triggered = false;
 
-    Renderer boxRenderer;
-
 	// Use this for initialization
 	void Start ()
     {
         TriggerManager.s_manager.m_triggerList.Add(this);
-
-        boxRenderer = GetComponentInChildren<Renderer>();
 
         GetComponentInChildren<ParticleSystem>().Play();
         GetComponentInChildren<Light>().enabled = true;
