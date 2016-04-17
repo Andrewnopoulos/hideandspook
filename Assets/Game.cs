@@ -303,7 +303,7 @@ public class Game : MonoBehaviour {
                 Vector3 lengthDelta = new Vector3(ldx, ldy, ldz);
 
                 pos += (prefabMeta.width - 1) * widthDelta * 0.5f;
-                pos += (prefabMeta.height - 1) * lengthDelta * 0.5f;
+             //   pos += (prefabMeta.height - 1) * lengthDelta * 0.5f;
 
                 obj.transform.localPosition = pos;
 
