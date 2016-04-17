@@ -72,7 +72,7 @@ public class PlayerGhost : MonoBehaviour {
     // Will go between 0 and 1
     float m_transparencyValue;
 
-    private bool dead = false;
+    public bool dead = false;
 
     public Renderer ghostRenderer;
 
