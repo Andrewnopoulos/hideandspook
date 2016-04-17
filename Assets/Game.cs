@@ -9,11 +9,13 @@ public class Game : MonoBehaviour {
 
     Vector3[] corners = new Vector3[4];
 
-    public GameObject testText;
+    private GameObject _envRoot;
+    private GameObject _triggerRoot;
 
     string _path = "Prefabs/";
 
     public GameObject[] _worldObjects;
+    public GameObject[] _firstPassObjects;
 
 	public int minWidth;
 	public int minLength;
@@ -34,26 +36,35 @@ public class Game : MonoBehaviour {
         corners[2] = new Vector3(_playArea.vCorners2.v0, _playArea.vCorners2.v1, _playArea.vCorners2.v2);
         corners[3] = new Vector3(_playArea.vCorners3.v0, _playArea.vCorners3.v1, _playArea.vCorners3.v2);
 
-		//int i = 0;
-		//foreach (Vector3 v in corners)
-		//{
-		//    GameObject test = GameObject.Instantiate(testText);
-		//    test.transform.position = v;
-		//    test.GetComponent<TextMesh>().text = "index: " + i;
-		//    i++;
+        //int i = 0;
+        //foreach (Vector3 v in corners)
+        //{
+        //    GameObject test = GameObject.Instantiate(testText);
+        //    test.transform.position = v;
+        //    test.GetComponent<TextMesh>().text = "index: " + i;
+        //    i++;
 
-		//}
+        //}
+
+        _envRoot = new GameObject("Environment");
+        _triggerRoot = new GameObject("Triggers");
 
         GameObject wallObject = Resources.Load<GameObject>(_path + "Wall");
 
         GameObject wallEast = GameObject.Instantiate(wallObject);
+        wallEast.transform.SetParent(_envRoot.transform, false);
         GameObject wallWest = GameObject.Instantiate(wallObject);
+        wallWest.transform.SetParent(_envRoot.transform, false);
         GameObject wallNorth = GameObject.Instantiate(wallObject);
+        wallNorth.transform.SetParent(_envRoot.transform, false);
         GameObject wallSouth = GameObject.Instantiate(wallObject);
+        wallSouth.transform.SetParent(_envRoot.transform, false);
         GameObject ground = GameObject.Instantiate(Resources.Load<GameObject>(_path + "Ground"));
-		GameObject ceiling = GameObject.Instantiate(Resources.Load<GameObject>(_path + "Ceiling"));
+        ground.transform.SetParent(_envRoot.transform, false);
+        GameObject ceiling = GameObject.Instantiate(Resources.Load<GameObject>(_path + "Ceiling"));
+        ceiling.transform.SetParent(_envRoot.transform, false);
 
-		int Width = Mathf.Max(Mathf.CeilToInt(corners[3].x * 2), minWidth) ;
+        int Width = Mathf.Max(Mathf.CeilToInt(corners[3].x * 2), minWidth) ;
         int Length = Mathf.Max(Mathf.CeilToInt(corners[2].z * 2), minLength) ;
         int Height = 3;
 
@@ -95,12 +106,24 @@ public class Game : MonoBehaviour {
 
 		Chunk chunk = new Chunk(Width, Length, Height);
 
-		WeightedPool<GameObject> pool = new WeightedPool<GameObject>(new List<GameObject>(_worldObjects));
+        if (_firstPassObjects != null && _firstPassObjects.Length > 0)
+        {
+            List<GameObject> firstList = new List<GameObject>(_firstPassObjects);
+            WeightedPool<GameObject> firstPool = new WeightedPool<GameObject>(firstList, true);
 
-		PopulateWall(chunk, pool, 0, 0, 0, 0, 0, 1, 0, 1, 0, Length, Height, Quaternion.Euler(0, -90, 0));
-        PopulateWall(chunk, pool, 0, 0, Length-1, 1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 0, 0));
-        PopulateWall(chunk, pool, Width-1, 0, Length-1, 0, 0, -1, 0, 1, 0, Length, Height, Quaternion.Euler(0, 90, 0));
-        PopulateWall(chunk, pool, Width-1, 0, 0, -1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 180, 0));
+            PopulateWall(chunk, firstList, firstPool, 0, 0, 0, 0, 0, 1, 0, 1, 0, Length, Height, Quaternion.Euler(0, -90, 0));
+            PopulateWall(chunk, firstList, firstPool, 0, 0, Length - 1, 1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 0, 0));
+            PopulateWall(chunk, firstList, firstPool, Width - 1, 0, Length - 1, 0, 0, -1, 0, 1, 0, Length, Height, Quaternion.Euler(0, 90, 0));
+            PopulateWall(chunk, firstList, firstPool, Width - 1, 0, 0, -1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 180, 0));
+        }
+
+        List<GameObject> worldList = new List<GameObject>(_worldObjects);
+		WeightedPool<GameObject> worldPool = new WeightedPool<GameObject>(new List<GameObject>(_worldObjects), false);
+
+		PopulateWall(chunk, worldList, worldPool, 0, 0, 0, 0, 0, 1, 0, 1, 0, Length, Height, Quaternion.Euler(0, -90, 0));
+        PopulateWall(chunk, worldList, worldPool, 0, 0, Length-1, 1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 0, 0));
+        PopulateWall(chunk, worldList, worldPool, Width-1, 0, Length-1, 0, 0, -1, 0, 1, 0, Length, Height, Quaternion.Euler(0, 90, 0));
+        PopulateWall(chunk, worldList, worldPool, Width-1, 0, 0, -1, 0, 0, 0, 1, 0, Width, Height, Quaternion.Euler(0, 180, 0));
 
 		InitTriggerPoints();
 
@@ -141,6 +164,7 @@ public class Game : MonoBehaviour {
 		{
 			int index = Random.Range(0, candleTransforms.Count);
 			GameObject currentCandle = GameObject.Instantiate(triggerObject);
+            currentCandle.transform.SetParent(_triggerRoot.transform, false);
 			currentCandle.transform.position = candleTransforms[index].transform.position;
 			candleTransforms.RemoveAt(index);
 			++candleCount;
@@ -166,16 +190,16 @@ public class Game : MonoBehaviour {
         }
     }
 
-    List<GameObject> GetValidObject(Chunk _chunk, int x, int y, int z, int wdx, int wdy, int wdz, int ldx, int ldy, int ldz)
+    List<GameObject> GetValidObject(Chunk _chunk, List<GameObject> objList, int x, int y, int z, int wdx, int wdy, int wdz, int ldx, int ldy, int ldz)
     {
-        if (_worldObjects == null)
+        if (objList == null)
         {
             return null;
         }
 
         List<GameObject> valid = new List<GameObject>();
 
-        foreach (GameObject prefab in _worldObjects)
+        foreach (GameObject prefab in objList)
         {
             if (prefab == null)
             {
@@ -254,7 +278,7 @@ public class Game : MonoBehaviour {
         return valid;
     }
 
-    void PopulateWall(Chunk _chunk, WeightedPool<GameObject> pool, int x, int y, int z, int wdx, int wdy, int wdz, int ldx, int ldy, int ldz, int width, int length, Quaternion rotation)
+    void PopulateWall(Chunk _chunk, List<GameObject> objList, WeightedPool<GameObject> pool, int x, int y, int z, int wdx, int wdy, int wdz, int ldx, int ldy, int ldz, int width, int length, Quaternion rotation)
     {
         int cx, cy, cz;
 
@@ -284,7 +308,12 @@ public class Game : MonoBehaviour {
                     continue;
                 }
 
-                List<GameObject> validList = GetValidObject(_chunk, cx, cy, cz, wdx, wdy, wdz, ldx, ldy, ldz);
+                if (pool.GetItemCount() == 0)
+                {
+                    return;
+                }
+
+                List<GameObject> validList = GetValidObject(_chunk, objList, cx, cy, cz, wdx, wdy, wdz, ldx, ldy, ldz);
 
 				GameObject prefab = pool.GetWeightedItem(validList);
 
@@ -296,6 +325,7 @@ public class Game : MonoBehaviour {
                 ObjectMeta prefabMeta = prefab.GetComponent<ObjectMeta>();
 
 				GameObject obj = GameObject.Instantiate(prefab);
+                obj.transform.SetParent(_envRoot.transform, false);
 				obj.transform.localRotation = rotation;
 
                 Vector3 pos = _chunk.mapToWorldSpace(cx, cy, cz);
@@ -325,6 +355,7 @@ public class Game : MonoBehaviour {
 public class WeightedPool <T> where T : class
 {
 	List<Weight> weights;
+    bool removeOnPick;
 
 	public class Weight
 	{
@@ -332,8 +363,9 @@ public class WeightedPool <T> where T : class
 		public float weight;
 	}
 
-	public WeightedPool(List<T> values)
+	public WeightedPool(List<T> values, bool oneOf)
 	{
+        removeOnPick = oneOf;
 		weights = new List<Weight>();
 		float randVal = 1.0f / values.Count;
 		for(int i = 0; i < values.Count; ++i)
@@ -360,19 +392,24 @@ public class WeightedPool <T> where T : class
 			}
 		}
 
-		if (validWeights.Count == 0)
+        Weight selected = null;
+        if (validWeights.Count == 0)
 		{
 			return null;
 		}
 		else if (validWeights.Count == 1)
-		{
-			return validWeights[0].val;
+        {
+            selected = validWeights[0];
+            if (removeOnPick)
+            {
+                weights.RemoveAt(0);
+            }
+            return selected.val;
 		}
 
 		float normalize = 1f / totalWeight;
 		float randomVal = Random.Range(0, 1f);
 		float curVal = 0;
-		Weight selected = null;
 		foreach (Weight w in validWeights)
 		{
 			float weight = w.weight * normalize;
@@ -399,9 +436,18 @@ public class WeightedPool <T> where T : class
 				w.weight += distribWeight;
 			}
 		}
-
+        
+        if (removeOnPick)
+        {
+            weights.Remove(selected);
+        }
 		return selected.val;
 	}
+
+    public int GetItemCount()
+    {
+        return weights.Count;
+    }
 }
 
 public class Chunk
