@@ -203,19 +203,22 @@ public class PlayerGhost : MonoBehaviour {
         float vibeLength = vibeLengthModifier / (distanceToTrigger == 0 ? 1 : distanceToTrigger);
 
 		var device = SteamVR_Controller.Input((int)m_trackedObject.index);
-
-		if (m_vibeTimer > vibeDelay)
+        //fix with vars for values.
+        if (distanceToTrigger < distanceThreshold)
+        {
+            if (m_vibeTimer > vibeDelay / 2f)
+            {
+                m_vibeTimer = 0;
+                device.TriggerHapticPulse((ushort)2000);
+            }
+        }
+        else if (m_vibeTimer > vibeDelay)
         {
             m_vibeTimer = 0;
             ushort clampedLength = (ushort)Mathf.Clamp(vibeLength, 500, 2000);
-
-            if (distanceToTrigger < distanceThreshold)
-            {
-                device.TriggerHapticPulse((ushort)3200);
-            } else
-            {
+            
 				device.TriggerHapticPulse(clampedLength);
-            }
+            
         }
     }
 
