@@ -98,7 +98,7 @@ public class SteamVR_Settings : EditorWindow
 			//window.title = "SteamVR";
 		}
 
-#if !(UNITY_5_3 || UNITY_5_2 || UNITY_5_1 || UNITY_5_0)
+		#if !(UNITY_5_4_OR_NEWER || UNITY_5_3 || UNITY_5_2 || UNITY_5_1 || UNITY_5_0)
 		// Switch to native OpenVR support.
 		var updated = false;
 
