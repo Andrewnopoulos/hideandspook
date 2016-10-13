@@ -89,6 +89,7 @@ public class PlayerGhost : MonoBehaviour {
     public bool m_readyToPlay = false;
 
     public PlayerHuman PlayerHead;
+    public PlayerGhost m_otherGhost;
 
 	void Awake()
 	{
@@ -331,9 +332,13 @@ public class PlayerGhost : MonoBehaviour {
         m_triggerPoint.ActivateTrigger();
         if (TriggerManager.s_manager.m_triggerList.Count == 0)
         {
-            Debug.Log("Ghosts ween");
-            return;
+            // TODO get other player ghost and set trigger point to same one
+            m_triggerPoint = m_otherGhost.m_triggerPoint;
         }
-        SetTriggerPoint();
+        else
+        {
+            SetTriggerPoint();
+        }
+       
     }
 }

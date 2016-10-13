@@ -25,7 +25,7 @@ public class Game : MonoBehaviour {
 	public int minWidth;
 	public int minLength;
 
-	public int maxCandles = 6;
+	public const int kMaxCandles = 6;
 
 	// Use this for initialization
 	void Awake () {
@@ -165,9 +165,7 @@ public class Game : MonoBehaviour {
 
 		List<GameObject> candleTransforms = new List<GameObject>(GameObject.FindGameObjectsWithTag("TriggerObject"));
 
-
-
-		while (TriggerManager.s_manager.m_maxCandles < maxCandles && candleTransforms.Count > 0)
+		while (TriggerManager.s_manager.m_maxCandles < kMaxCandles && candleTransforms.Count > 0)
 		{
 			int index = Random.Range(0, candleTransforms.Count);
 			GameObject currentCandle = GameObject.Instantiate(triggerObject);
