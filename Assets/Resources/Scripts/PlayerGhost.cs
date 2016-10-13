@@ -258,6 +258,33 @@ public class PlayerGhost : MonoBehaviour {
             }
         }
 
+        // change the 2 if we wanted arbitrary number of players
+        if (sm.state == State.PreGame)
+        {
+            if (TriggerManager.s_manager.m_playing == false)
+            {
+                if (TriggerManager.s_manager.m_activePlayers == 2)
+                {
+                    m_collider.enabled = true;
+                    TriggerManager.s_manager.m_playing = true;
+                    StateManager.instance.state = State.Playing;
+                }
+                else
+                {
+                    m_collider.enabled = false;
+                    ghostRenderer.material.SetColor("_TintColor", new Color(baseColor.r, baseColor.g, baseColor.b, 0));
+                }
+            }
+            else
+            {
+                m_collider.enabled = true;
+            }
+        }
+        else if (sm.state == State.PostGame)
+        {
+            ghostRenderer.material.SetColor("_TintColor", new Color(81f / 255f, 0f, 0f, 1 - sm.alpha));
+        }
+
         if (appMenuDown)
         {
             if (!m_readyToPlay && sm.state == State.PreGame && sm.Idle)
@@ -274,33 +301,6 @@ public class PlayerGhost : MonoBehaviour {
 				return;
             }
         }
-
-
-        // change the 2 if we wanted arbitrary number of players
-		if (sm.state == State.PreGame)
-		{
-			if (TriggerManager.s_manager.m_playing == false)
-			{
-				if (TriggerManager.s_manager.m_activePlayers == 2)
-				{
-					m_collider.enabled = true;
-					TriggerManager.s_manager.m_playing = true;
-					StateManager.instance.state = State.Playing;
-				}
-				else
-				{
-					m_collider.enabled = false;
-					ghostRenderer.material.SetColor("_TintColor", new Color(baseColor.r, baseColor.g, baseColor.b, 0));
-				}
-			}
-			else
-			{
-				m_collider.enabled = true;
-			}
-		} else if (sm.state == State.PostGame)
-		{
-			ghostRenderer.material.SetColor("_TintColor", new Color(81f / 255f, 0f, 0f, 1-sm.alpha));
-		}
 	}
 
     public void Reset()

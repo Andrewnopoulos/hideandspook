@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -62,7 +61,8 @@ public class TriggerManager : MonoBehaviour
 	public static void ReloadGame()
 	{
 		s_manager.Reset();
-		SceneManager.LoadScene(0);
-		StateManager.instance.FadeOut(State.PreGame, null);
+        StateManager.instance.FadeOut(State.PreGame, null);
+        Application.LoadLevel(0);
+        //SceneManager.LoadScene(0);
 	}
 }
